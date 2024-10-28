@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speech to Text System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+  <style>
+   /* Import Poppins font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body {
+    background-color: aliceblue;
+    font-family: 'Poppins', sans-serif; /* Change font to Poppins */
+}
+
+header {
+    background-color: #006634;
+}
+
+button {
+    font-size: 1.5rem;
+    padding: 15px 30px;
+    font-family: 'Poppins', sans-serif; /* Ensure buttons use the same font */
+}
+
+/* Menambah jarak antara tombol */
+.control-buttons button {
+    margin: 10px;
+}
+
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="text-white text-center py-4 position-relative">
+    <!-- Logo in the top-left corner -->
+    <img src="Logo.PNG" alt="Logo" class="position-absolute top-0 start-0 ms-4 mt-3" style="height: 100px;">
+    <img src="bangga.png" alt="Bangga" class="position-absolute top-0 end-0 me-4 mt-3" style="height: 100px;">
+
+    <!-- Title and Subtitle -->
+    <h1>Sistem Konversi Suara ke Teks</h1>
+    <p>PENGADILAN NEGERI KEBUMEN</p>
+  </header>
+  
+  <!-- Main Container -->
+  <div class="container my-5">
+    <!-- Speech to Text Section -->
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <!-- Text Area for Displaying Speech -->
+        <div class="mb-4">
+          <textarea class="form-control" id="speechText" rows="6" placeholder="Your speech will appear here..." readonly></textarea>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="text-center control-buttons">
+          <button id="startButton" class="btn btn-primary">
+            <i class="bi bi-mic-fill"></i> Start (R)
+          </button>
+          <button id="pauseButton" class="btn btn-warning">
+            <i class="bi bi-pause-fill"></i> Pause/Resume (P)
+          </button>
+          <button id="stopButton" class="btn btn-danger">
+            <i class="bi bi-stop-fill"></i> Stop (S)
+          </button>
+          <button id="switchSpeakerButton" class="btn btn-info">
+            <i class="bi bi-person-fill"></i> Ganti Pembicara (G)
+          </button>
+          <button id="downloadButton" class="btn btn-success">
+            <i class="bi bi-file-earmark-arrow-down-fill"></i> Download (U)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-light text-center py-3">
+    <p>&copy; 2024 Speech to Text System</p>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Web Speech API and JS Logic -->
+  <script>
+    const startButton = document.getElementById('startButton');
+    const pauseButton = document.getElementById('pauseButton');
+    const stopButton = document.getElementById('stopButton');
+    const downloadButton = document.getElementById('downloadButton');
+    const switchSpeakerButton = document.getElementById('switchSpeakerButton');
+    const speechText = document.getElementById('speechText');
+
+    let recognition;
+    let isRecording = false;
+    let isPaused = false;
+    let speakerCount = 1; // Start with speaker 1
+    let initialTextAdded = false;
+
+    // Initialize Speech Recognition API
+    if ('webkitSpeechRecognition' in window) {
+      recognition = new webkitSpeechRecognition();
+      recognition.lang = 'id-ID'; // Bahasa Indonesia
+      recognition.continuous = true;
+      recognition.interimResults = false;
+
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        speechText.value += transcript + ' ';
+      };
+    } else {
+      alert("Web Speech API is not supported in this browser.");
+    }
+
+    // Start Speech Recognition
+    const startRecording = () => {
+      if (!isRecording && recognition) {
+        recognition.start();
+        if (!initialTextAdded) {
+          speechText.value += "[Pembicara 1]:\n";
+          initialTextAdded = true;
+        }
+        isRecording = true;
+        isPaused = false;
+      }
+    };
+
+    // Pause and Resume Speech Recognition (Switches speaker after resume)
+    const pauseRecording = () => {
+      if (isRecording && !isPaused) {
+        recognition.stop();
+        speechText.value += "\n[Paused]\n";
+        isPaused = true;
+      } else if (isPaused) {
+        switchSpeaker(); // Automatically switch speaker on resume
+        recognition.start();
+        speechText.value += "\n[Resumed]\n";
+        isPaused = false;
+      }
+    };
+
+    // Stop Speech Recognition
+    const stopRecording = () => {
+      if (isRecording && recognition) {
+        recognition.stop();
+        speechText.value += "\n[Stopped]\n";
+        isRecording = false;
+        isPaused = false;
+      }
+    };
+
+    // Switch Speaker
+    const switchSpeaker = () => {
+      if (speakerCount < 2) {
+        speakerCount++;
+      } else {
+        speakerCount = 1;
+      }
+      speechText.value += `\n[Pembicara ${speakerCount}]:\n`;
+    };
+
+    // Download as Word
+    const downloadWord = () => {
+      const text = speechText.value;
+      const blob = new Blob(['\ufeff', text], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'speech-text.doc';
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    // Button event listeners
+    startButton.addEventListener('click', startRecording);
+    pauseButton.addEventListener('click', pauseRecording);
+    stopButton.addEventListener('click', stopRecording);
+    switchSpeakerButton.addEventListener('click', switchSpeaker);
+    downloadButton.addEventListener('click', downloadWord);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'r' || e.key === 'R') {
+        startRecording();
+      } else if (e.key === 'p' || e.key === 'P') {
+        pauseRecording();
+      } else if (e.key === 's' || e.key === 'S') {
+        stopRecording();
+      } else if (e.key === 'g' || e.key === 'G') {
+        switchSpeaker();
+      }
+      else if (e.key === 'u' || e.key === 'U') {
+        downloadWord();
+      }
+    });
+  </script>
+</body>
+</html>
