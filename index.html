@@ -15,7 +15,22 @@ body {
 }
 
 header {
-    background-color: #006634;
+    background-color: #058b4f;
+}
+
+header .d-flex {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding-top: 20px; /* Atur jarak atas sesuai kebutuhan */
+    padding-right: 20px; /* Atur jarak kanan sesuai kebutuhan */
+    gap: 10px; /* Jarak antara gambar */
+}
+
+header .small-icons img {
+    height: 60px; /* Sesuaikan tinggi gambar agar lebih kecil */
+    width: auto; /* Pertahankan rasio aspek */
+    margin-left: 5px; /* Tambahkan jarak antar gambar */
 }
 
 button {
@@ -29,6 +44,11 @@ button {
     margin: 10px;
 }
 
+.form-range {
+    width: 200px;
+    margin: 10px auto;
+}
+
   </style>
 </head>
 <body>
@@ -37,8 +57,10 @@ button {
 <header class="text-white text-center py-4 position-relative">
     <!-- Logo in the top-left corner -->
     <img src="Logo.PNG" alt="Logo" class="position-absolute top-0 start-0 ms-4 mt-3" style="height: 100px;">
-    <img src="bangga.png" alt="Bangga" class="position-absolute top-0 end-0 me-4 mt-3" style="height: 100px;">
-
+    <div class="d-flex align-items-center justify-content-end me-4 mt-3 small-icons">
+      <img src="Logo_BerAKHLAK.png" alt="Akhlak">
+      <img src="bangga.png" alt="Bangga">
+  </div>
     <!-- Title and Subtitle -->
     <h1>Sistem Konversi Suara ke Teks</h1>
     <p>PENGADILAN NEGERI KEBUMEN</p>
@@ -71,6 +93,13 @@ button {
           <button id="downloadButton" class="btn btn-success">
             <i class="bi bi-file-earmark-arrow-down-fill"></i> Download (U)
           </button>
+          <button id="translateButton" class="btn btn-secondary">
+            <i class="bi bi-translate"></i> Translate
+        </button> 
+        <div class="text-center control-buttons">
+          <!-- Tombol kontrol lainnya -->
+          <input id="fontSizeSlider" type="range" min="10" max="30" value="16" class="form-range" />
+      </div>     
         </div>
       </div>
     </div>
@@ -92,6 +121,7 @@ button {
     const downloadButton = document.getElementById('downloadButton');
     const switchSpeakerButton = document.getElementById('switchSpeakerButton');
     const speechText = document.getElementById('speechText');
+    const fontSizeSlider = document.getElementById('fontSizeSlider');
 
     let recognition;
     let isRecording = false;
@@ -198,6 +228,53 @@ button {
         downloadWord();
       }
     });
+
+    const translateButton = document.getElementById('translateButton');
+
+    const translateText = async () => {
+        const text = speechText.value;
+        const sourceLang = 'jv'; // Kode bahasa Jawa
+        const targetLang = 'id'; // Kode bahasa Indonesia
+
+        try {
+            const response = await fetch(`https://translation.googleapis.com/language/translate/v2?key=AIzaSyDgZDAOEzTbzXXh_caU5gcBy2WrO8m6O7M`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    q: text,
+                    source: sourceLang,
+                    target: targetLang,
+                }),
+            });
+
+            const data = await response.json();
+            if (data.data && data.data.translations.length > 0) {
+                speechText.value = data.data.translations[0].translatedText;
+            } else {
+                alert('Error: Unable to translate text');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    translateButton.addEventListener('click', translateText);
+
+    // Fungsi untuk mengubah ukuran teks di dalam textarea
+    const adjustFontSize = (size) => {
+        speechText.style.fontSize = size + 'px';
+    };
+
+    // Set ukuran teks default saat halaman dimuat
+    adjustFontSize(fontSizeSlider.value);
+
+    // Update ukuran font sesuai nilai slider
+    fontSizeSlider.addEventListener('input', (e) => {
+        adjustFontSize(e.target.value);
+    });
+
   </script>
 </body>
 </html>
