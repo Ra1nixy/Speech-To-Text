@@ -77,7 +77,7 @@ button {
       <div class="col-md-8">
         <!-- Text Area for Displaying Speech -->
         <div class="mb-4">
-          <textarea class="form-control" id="speechText" rows="6" placeholder="hasil rekaman suara akan otomatis tertulis disini" readonly style="resize: both;"></textarea>
+          <textarea class="form-control" id="speechText" rows="10" placeholder="hasil rekaman suara akan otomatis tertulis disini" readonly style="resize: both;"></textarea>
         </div>
 
         <!-- Control Buttons -->
@@ -111,7 +111,7 @@ button {
 
   <!-- Footer -->
   <footer class="bg-light text-center py-3">
-    <p>&copy; 2024 Speech to Text System</p>
+    <p>&copy; <span id="currentYear"></span> Pengadilan Negeri Kebumen</p>
   </footer>
 
   <!-- Bootstrap JS -->
@@ -151,6 +151,8 @@ button {
       alert("Web Speech API is not supported in this browser.");
     }
 
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
     // Start Speech Recognition
     const startRecording = () => {
       if (!isRecording && recognition) {
@@ -182,7 +184,7 @@ button {
     const stopRecording = () => {
       if (isRecording && recognition) {
         recognition.stop();
-        speechText.value += "\n[Stopped]\n";
+        speechText.value += "\n[Berhenti]\n";
         isRecording = false;
         isPaused = false;
       }
@@ -198,11 +200,9 @@ button {
       speechText.value += `\n[Pembicara ${speakerCount}]:\n`;
     };
 
-    // Download as Word
     const downloadWord = () => {
     const text = speechText.value;
     
-    // Define HTML content with inline CSS for font styling
     const htmlContent = `
       <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
       <head><meta charset='utf-8'><title>Document</title></head>
