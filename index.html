@@ -66,7 +66,8 @@ button {
       <img src="bangga.png" alt="Bangga">
   </div>
     <!-- Title and Subtitle -->
-    <h1>Sistem Konversi Suara ke Teks</h1>
+    <h1>SIPESEK</h1>
+    <h3>Sistem Informasi Penerjemah Suara ke Teks</h3>
     <p>PENGADILAN NEGERI KEBUMEN</p>
   </header>
   
@@ -111,7 +112,7 @@ button {
 
   <!-- Footer -->
   <footer class="bg-light text-center py-3">
-    <p>&copy; <span id="currentYear"></span> Pengadilan Negeri Kebumen</p>
+    <p>&copy; <span id="currentYear"></span> Magang Pengadilan Negeri Kebumen</p>
   </footer>
 
   <!-- Bootstrap JS -->
@@ -170,12 +171,12 @@ button {
     const pauseRecording = () => {
       if (isRecording && !isPaused) {
         recognition.stop();
-        speechText.value += "\n[Paused]\n";
+        speechText.value += "\n[Jeda]\n";
         isPaused = true;
       } else if (isPaused) {
         switchSpeaker(); // Automatically switch speaker on resume
         recognition.start();
-        speechText.value += "\n[Resumed]\n";
+        speechText.value += "\n[Lanjutkan]\n";
         isPaused = false;
       }
     };
